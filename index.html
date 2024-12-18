@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistics Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Statistics Dashboard</h1>
+  </header>
+
+  <main>
+    <!-- Controls -->
+    <section id="controls">
+      <label for="search-input">Search:</label>
+      <input type="text" id="search-input" placeholder="Search by User ID">
+      <br>
+      <label for="activity-dropdown">Filter by Activity:</label>
+      <select id="activity-dropdown">
+        <option value="all">All Activities</option>
+      </select>
+    </section>
+
+    <!-- User Sessions Table -->
+    <section>
+      <h2>All Users' Sessions</h2>
+      <table id="user-sessions-table">
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Session ID</th>
+            <th>Timestamp</th>
+            <th>Activity</th>
+            <th>Trigger Count</th>
+            <th>Session Duration</th>
+            <th>Session Flow</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Cumulative Statistics -->
+    <section>
+      <h2>Cumulative Statistics</h2>
+      <table id="cumulative-stats-table">
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Total Trigger Count</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Charts -->
+    <section>
+      <h2>Heatmap Chart</h2>
+      <canvas id="heatmapChart"></canvas>
+      <br>
+      <h2>Session Duration Chart</h2>
+      <canvas id="durationChart"></canvas>
+      <br>
+      <h2>Cumulative Trigger Counts</h2>
+      <canvas id="cumulativeChart"></canvas>
+    </section>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
