@@ -45,18 +45,16 @@ async function fetchAndRenderStats() {
                 sessionId: data.session_id,
                 timestamp: data.timestamp || "N/A",
                 sessionDuration: data.session_duration || 0,
-                sessionFlow: (data.session_flow || []).join(" -> "),
-                activities: data.activity_counts || {}
+                sessionFlow: (data.session_flow || []).join(" -> ")
             };
 
-            // Track session data
             allSessions.push(session);
 
             // Aggregate durations
             sessionDurations[userId] = (sessionDurations[userId] || 0) + session.sessionDuration;
 
             // Update activity counts
-            for (const [activity, count] of Object.entries(session.activities)) {
+            for (const [activity, count] of Object.entries(data.activity_counts || {})) {
                 activitySet.add(activity);
                 cumulativeCounts[activity] = (cumulativeCounts[activity] || 0) + count;
             }
@@ -64,11 +62,29 @@ async function fetchAndRenderStats() {
     }
 
     populateDropdown();
-    renderSessionsTable(allSessions);
+    renderSessionsTable(aggregateSessions(allSessions));
     renderCumulativeStats(cumulativeCounts);
     renderHeatmapChart();
     renderDurationChart();
     renderCumulativeChart();
+}
+
+// Aggregate sessions by session ID
+function aggregateSessions(sessions) {
+    const aggregated = {};
+    sessions.forEach((session) => {
+        if (!aggregated[session.sessionId]) {
+            aggregated[session.sessionId] = {
+                userId: session.userId,
+                sessionId: session.sessionId,
+                timestamp: session.timestamp,
+                sessionDuration: session.sessionDuration,
+                sessionFlow: session.sessionFlow
+            };
+        }
+    });
+
+    return Object.values(aggregated);
 }
 
 // Reset Global Variables
@@ -96,19 +112,15 @@ function renderSessionsTable(sessions) {
     tableBody.innerHTML = "";
 
     sessions.forEach(session => {
-        for (const [activity, count] of Object.entries(session.activities)) {
-            tableBody.innerHTML += `
-                <tr>
-                    <td>${session.userId}</td>
-                    <td>${session.sessionId}</td>
-                    <td>${session.timestamp}</td>
-                    <td>${activity}</td>
-                    <td>${count}</td>
-                    <td>${session.sessionDuration.toFixed(2)}</td>
-                    <td>${session.sessionFlow}</td>
-                </tr>
-            `;
-        }
+        tableBody.innerHTML += `
+            <tr>
+                <td>${session.userId}</td>
+                <td>${session.sessionId}</td>
+                <td>${session.timestamp}</td>
+                <td>${session.sessionDuration.toFixed(2)}</td>
+                <td>${session.sessionFlow}</td>
+            </tr>
+        `;
     });
 }
 
@@ -166,28 +178,6 @@ function renderCumulativeChart() {
         options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
 }
-
-// Search Functionality
-searchInput.addEventListener("input", () => {
-    const searchValue = searchInput.value.toLowerCase();
-    const filteredSessions = allSessions.filter(session =>
-        session.userId.toLowerCase().includes(searchValue) 
-    );
-    renderSessionsTable(filteredSessions);
-});
-
-// Dropdown Filter Logic
-activityDropdown.addEventListener("change", () => {
-    const selectedActivity = activityDropdown.value;
-    if (selectedActivity === "all") {
-        renderSessionsTable(allSessions);
-    } else {
-        const filteredSessions = allSessions.filter(session =>
-            Object.keys(session.activities).includes(selectedActivity)
-        );
-        renderSessionsTable(filteredSessions);
-    }
-});
 
 // Utility: Generate Random Colors
 function generateRandomColors(numColors) {
